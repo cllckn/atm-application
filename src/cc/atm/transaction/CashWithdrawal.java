@@ -1,4 +1,11 @@
-package cc.atm;
+package cc.atm.transaction;
+
+import cc.atm.CustomerAccount;
+import cc.atm.Utilities;
+import cc.atm.bankinformationsystem.IBankInformationSystem;
+import cc.atm.hardware.ICashDispenser;
+import cc.atm.hardware.IKeypad;
+import cc.atm.hardware.IScreen;
 
 public class CashWithdrawal extends Transaction {
 

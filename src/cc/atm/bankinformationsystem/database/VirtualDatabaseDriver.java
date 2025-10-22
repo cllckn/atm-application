@@ -1,7 +1,6 @@
-package cc.atm.database;
+package cc.atm.bankinformationsystem.database;
 
 import cc.atm.CustomerAccount;
-import cc.atm.IDatabaseRepository;
 import cc.atm.Utilities;
 
 public class VirtualDatabaseDriver implements IDatabaseRepository {

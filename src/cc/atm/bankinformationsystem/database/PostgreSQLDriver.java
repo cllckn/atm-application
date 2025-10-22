@@ -1,7 +1,6 @@
-package cc.atm.database;
+package cc.atm.bankinformationsystem.database;
 
 import cc.atm.CustomerAccount;
-import cc.atm.IDatabaseRepository;
 import cc.atm.Utilities;
 
 import java.sql.Connection;
@@ -39,7 +38,7 @@ public class PostgreSQLDriver implements IDatabaseRepository {
         Connection conn = this.connect();
 
         try {
-            String sql = "SELECT * FROM \"CustomerAccount\" WHERE \"accountNumber\"=" + accountNumber + " AND password=" + password;
+            String sql = "SELECT * FROM customeraccount WHERE accountnumber=" + accountNumber + " AND password=" + password;
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -53,10 +52,10 @@ public class PostgreSQLDriver implements IDatabaseRepository {
             String lastName;
 
             while (rs.next()) {
-                accNo = rs.getInt("accountNumber");
+                accNo = rs.getInt("accountnumber");
                 balance = rs.getDouble("balance");
-                firstName = rs.getString("firstName");
-                lastName = rs.getString("lastName");
+                firstName = rs.getString("name");
+                lastName = rs.getString("surname");
 
                 customerAccount = new CustomerAccount(accNo, balance, firstName, lastName);
                 System.out.println(customerAccount);
@@ -76,7 +75,7 @@ public class PostgreSQLDriver implements IDatabaseRepository {
         Connection conn = this.connect();
 
         try {
-            String sql = "UPDATE \"UserAccount\" SET balance=" + customerAccount.getBalance() + " WHERE \"accountNumber\"=" + customerAccount.getAccountNumber();
+            String sql = "UPDATE \"KullaniciHesabi\" SET bakiye=" + customerAccount.getBalance() + " WHERE \"hesapNumarasi\"=" + customerAccount.getAccountNumber();
 
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);

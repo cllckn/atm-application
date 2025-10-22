@@ -1,4 +1,6 @@
-package cc.atm;
+package cc.atm.hardware;
+
+import cc.atm.Utilities;
 
 public class CardSlot implements ICardSlot {
 

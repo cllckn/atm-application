@@ -1,4 +1,9 @@
-package cc.atm;
+package cc.atm.transaction;
+
+import cc.atm.CustomerAccount;
+import cc.atm.bankinformationsystem.IBankInformationSystem;
+import cc.atm.hardware.IKeypad;
+import cc.atm.hardware.IScreen;
 
 public abstract class Transaction {
 

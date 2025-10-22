@@ -1,4 +1,7 @@
-package cc.atm;
+package cc.atm.bankinformationsystem;
+
+import cc.atm.CustomerAccount;
+import cc.atm.bankinformationsystem.database.IDatabaseRepository;
 
 public class BankInformationSystem implements IBankInformationSystem {
 

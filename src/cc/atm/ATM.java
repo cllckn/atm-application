@@ -5,7 +5,14 @@
  */
 package cc.atm;
 
-import cc.atm.database.VirtualDatabaseDriver;
+import cc.atm.authentication.*;
+import cc.atm.bankinformationsystem.BankInformationSystem;
+import cc.atm.bankinformationsystem.IBankInformationSystem;
+import cc.atm.bankinformationsystem.database.VirtualDatabaseDriver;
+import cc.atm.hardware.*;
+import cc.atm.transaction.CashDeposit;
+import cc.atm.transaction.CashWithdrawal;
+import cc.atm.transaction.ViewBalance;
 
 public class ATM {
     private final IScreen screen;
@@ -25,50 +32,21 @@ public class ATM {
         cardSlot = new CardSlot();
     }
 
-    public void start() {
-        screen.displayMessage("Please insert your card into the slot 123...");
-        Utilities.waiting();
-        int accountNumber = this.verifyCard();
-        if (accountNumber != 0) {
-            screen.displayMessage("Enter your PIN (2)");
-            int pin = keypad.getInput();
-            IBankInformationSystem bankInformationSystem = new BankInformationSystem(new VirtualDatabaseDriver());
-            // IBankInformationSystem bankInformationSystem = new BankInformationSystem(new PostgreSQLDriver());
+    public void start(IBankInformationSystem bankInformationSystem) {
 
-            CustomerAccount customerAccount = this.verifyUser(accountNumber, pin, bankInformationSystem);
-            // CustomerAccount customerAccount = this.verifyUser(accountNumber, bankInformationSystem);
-            if (customerAccount != null) {
-                screen.displayMessage("User verification successful...: " + customerAccount);
-                chooseTransaction(bankInformationSystem, customerAccount);
-            } else {
-                screen.displayMessage("Your account could not be verified");
-                cardSlot.ejectCard();
-            }
+        // 🔐 Use authentication strategy
+        IAuthentication authentication =
+                new CardAndPinAuthentication(screen, keypad, cardSlot);
+
+        CustomerAccount customerAccount =
+                authentication.authenticate(bankInformationSystem);
+
+        if (customerAccount != null) {
+            chooseTransaction(bankInformationSystem, customerAccount);
         } else {
-            screen.displayMessage("Your card could not be verified");
+            screen.displayMessage("Authentication failed. Exiting...");
             cardSlot.ejectCard();
         }
-    }
-
-    private int verifyCard() {
-        return cardSlot.insertCard();
-    }
-
-    private CustomerAccount verifyUser(int accountNumber, int pin, IBankInformationSystem bankInformationSystem) {
-        // private CustomerAccount verifyUser(int accountNumber, IBankInformationSystem bankInformationSystem) {
-
-        return bankInformationSystem.verifyUser(accountNumber, pin);
-        // In case of failure to verify, re-enter the PIN, and if incorrect 3 times, the card should be retained.
-        /*int pin;
-        int counter = 0;
-        CustomerAccount customerAccount = null;
-        do {
-            screen.displayMessage("Enter your PIN");
-            pin = keypad.getInput();
-            customerAccount = bankInformationSystem.verifyUser(accountNumber, pin);
-        } while (customerAccount == null && ++counter < 3);
-
-        return customerAccount;*/
     }
 
     private void chooseTransaction(IBankInformationSystem bankInformationSystem, CustomerAccount customerAccount) {
@@ -78,38 +56,33 @@ public class ATM {
             screen.clearScreen();
             switch (selection) {
                 case VIEW_BALANCE:
-                    Transaction viewBalance = new ViewBalance(screen, keypad, customerAccount);
-                    viewBalance.execute();
+                    new ViewBalance(screen, keypad, customerAccount).execute();
                     break;
                 case WITHDRAW_CASH:
-                    Transaction withdrawCash = new CashWithdrawal(bankInformationSystem, screen, keypad, customerAccount, cashDispenser);
-                    withdrawCash.execute();
+                    new CashWithdrawal(bankInformationSystem, screen, keypad, customerAccount, cashDispenser).execute();
                     break;
-
                 case DEPOSIT_CASH:
-                    Transaction depositCash = new CashDeposit(bankInformationSystem, screen, keypad, customerAccount, cashDispenser);
-                    depositCash.execute();
+                    new CashDeposit(bankInformationSystem, screen, keypad, customerAccount, cashDispenser).execute();
                     break;
-
                 case EXIT:
-                    screen.displayMessage("Exiting");
+                    screen.displayMessage("Exiting...");
                     cardSlot.ejectCard();
                     break;
                 default:
                     screen.displayMessage("You must enter a number between 1 and 4");
             }
-        } while (selection != 4);
+        } while (selection != EXIT);
     }
 
     private int showMainMenu() {
         screen.displayMessage("**********************************************");
         screen.displayMessage("Main Menu");
-        screen.displayMessage("1-View Balance");
-        screen.displayMessage("2-Withdraw Cash");
-        screen.displayMessage("3-Deposit Cash");
-        screen.displayMessage("4-Exit");
-        screen.displayMessage("Your Selection:");
+        screen.displayMessage("1 - View Balance");
+        screen.displayMessage("2 - Withdraw Cash");
+        screen.displayMessage("3 - Deposit Cash");
+        screen.displayMessage("4 - Exit");
         screen.displayMessage("**********************************************");
+        screen.displayMessage("Your Selection:");
         return keypad.getInput();
     }
 }

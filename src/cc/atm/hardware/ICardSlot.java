@@ -1,4 +1,4 @@
-package cc.atm;
+package cc.atm.hardware;
 
 public interface ICardSlot {
     public int insertCard();
