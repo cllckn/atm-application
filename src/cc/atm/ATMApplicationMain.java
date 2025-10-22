@@ -1,6 +1,6 @@
 package cc.atm;
 
-public class MainClass {
+public class ATMApplicationMain {
     public static void main(String[] args) {
         ATM atm = new ATM();
         atm.start();
